@@ -332,3 +332,9 @@ docs:
   license_strategy: "./docs/LICENSE-STRATEGY.md"
   migration: "./docs/MIGRATION.md"
   titan_fixtures: "./test-fixtures/titan/"
+
+# About Repo declaration — non-app, displays source's score
+app_type: about
+about:
+  represents: Wolfe-Jam/faf-enterprise
+  source_score: 100

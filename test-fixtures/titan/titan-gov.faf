@@ -1,0 +1,95 @@
+faf: "3.0"
+
+# ============================================================
+# TITAN GOV — Division Level
+# Government contracts division. Inherits from titan-org.faf.
+# Adds FedRAMP compliance and air-gapped AI requirements.
+# ============================================================
+
+# --- DNA Chunk (scored) ---
+
+project:
+  name: "titan-gov"
+  description: "Government contract platform — secure, air-gapped, FedRAMP authorized"
+  goal: "FedRAMP High authorized infrastructure for federal agencies"
+  main_language: "Go"
+  type: "division"
+
+stack:
+  backend: "Go"
+  db: "PostgreSQL (GovCloud RDS)"
+  hosting: "AWS GovCloud (us-gov-west-1)"
+  cicd: "GitLab CI (self-hosted)"
+  framework: "React (air-gapped npm mirror)"
+
+enterprise:
+  owner: "titan-gov/platform"
+  division: "titan-gov"
+  parent_faf: "./titan-org.faf"
+  classification: "restricted"
+
+goals:
+  - "Maintain FedRAMP High authorization"
+  - "Zero data exfiltration — air-gapped by design"
+  - "Support 12 active federal contracts"
+
+rules:
+  - "No external network calls from production — air-gapped"
+  - "All dependencies vendored — no runtime package fetching"
+  - "FIPS 140-2 compliant cryptography only"
+  - "All code changes require two reviews (one from cleared personnel)"
+  - "No third-party SaaS in production environment"
+
+# --- Context Chunks (unscored) ---
+
+compliance:
+  frameworks: [SOC2, FedRAMP]
+  fedramp_specifics:
+    impact_level: "High"
+    authorization: "Agency ATO (active)"
+    ato_expiry: "2027-06-15"
+    continuous_monitoring: "ConMon monthly"
+    poa_m_items: 3
+  audit_cadence: "continuous (monthly ConMon + annual assessment)"
+  data_residency: "us-gov-west-1 (GovCloud only)"
+  last_audit: "2026-02-28"
+
+security:
+  auth: "CAC/PIV (certificate-based) + MFA"
+  secrets: "AWS Secrets Manager (GovCloud, FIPS endpoints)"
+  encryption: "AES-256-GCM (FIPS 140-2 validated modules), TLS 1.3 (FIPS mode)"
+  scan_tool: "Anchore (air-gapped) + STIG compliance scanner"
+  network: "Air-gapped — no internet egress from production"
+  vulnerability_sla:
+    critical: "4 hours"
+    high: "24 hours"
+    medium: "7 days"
+    low: "30 days"
+  cleared_personnel_required: true
+
+ai_policy:
+  approved_providers: ["internal"]
+  usage: "Internal LLM only — air-gapped deployment of open-source model"
+  model: "Llama 3 (self-hosted, GovCloud)"
+  restrictions:
+    - "No external AI providers — zero internet connectivity"
+    - "No data leaves GovCloud boundary"
+    - "AI model updates require security review and ATO amendment"
+    - "All AI interactions logged and auditable"
+  context_format: "FAF v3 (.faf) → JSON export for internal LLM"
+
+sla:
+  uptime: "99.99%"
+  rpo: "1 hour"
+  rto: "4 hours"
+  maintenance_window: "Sundays 02:00-06:00 EST (pre-approved)"
+  escalation: "PagerDuty → SOC → ISSO → AO"
+
+# --- Pointer Chunk ---
+
+docs:
+  fedramp_package: "./docs/FEDRAMP-PACKAGE.md"
+  ssp: "./docs/SYSTEM-SECURITY-PLAN.md"
+  conmon_process: "./docs/CONTINUOUS-MONITORING.md"
+  incident_response: "./docs/INCIDENT-RESPONSE-PLAN.md"
+  air_gap_architecture: "./docs/AIR-GAP-ARCHITECTURE.md"

@@ -1,0 +1,14 @@
+# About Repo — block any accidental source/build artifacts
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.mypy_cache/
+node_modules/
+dist/
+build/
+target/
+zig-out/
+.DS_Store
+.env
+.env.*

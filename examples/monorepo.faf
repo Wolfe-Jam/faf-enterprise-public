@@ -1,0 +1,74 @@
+# Monorepo Example
+# Full-stack e-commerce platform
+
+faf_version: 4.0.0
+generated: 2025-01-24
+
+project:
+  name: "shopfront"
+  goal: "Modern e-commerce platform with headless architecture"
+  main_language: typescript
+  type: turborepo
+
+stack:
+  # Monorepo infrastructure
+  monorepo_tool: turborepo
+  package_manager: pnpm
+  workspaces:
+    - apps/web (nextjs storefront)
+    - apps/admin (react admin panel)
+    - apps/api (fastify backend)
+    - packages/ui (shared components)
+    - packages/db (prisma schema)
+    - packages/config (shared configs)
+
+  # Frontend stack
+  frontend: nextjs
+  css_framework: tailwindcss
+  ui_library: shadcn/ui
+  state_management: zustand
+
+  # Admin UI (separate from main frontend)
+  admin: react
+
+  # Backend stack
+  backend: fastify
+  api_type: REST + GraphQL
+  runtime: Node.js
+  database: postgres
+  connection: prisma
+
+  # Application layers
+  cache: redis
+  search: meilisearch
+  storage: cloudflare_r2
+
+  # Universal
+  hosting: vercel
+  build: turbo
+  cicd: github_actions
+
+monorepo:
+  packages_count: 6
+  build_orchestrator: turbo.json
+  versioning_strategy: changesets
+  shared_configs:
+    - tsconfig.base.json
+    - eslint.config.js
+    - prettier.config.js
+  remote_cache: vercel
+
+human_context:
+  who: "E-commerce agency building platforms for fashion brands"
+  what: "Headless commerce with custom storefronts for each client"
+  why: "Shopify too limiting, custom builds too expensive to maintain"
+  where: "Vercel (apps), Railway (services), Cloudflare (assets)"
+  when: "3 clients live, 2 in development, targeting 10 by EOY"
+  how: "Shared core, client-specific themes, white-label admin"
+
+preferences:
+  quality_bar: production_grade
+  commit_style: conventional
+  testing: required_for_core
+
+# Score: 100% - All slots filled

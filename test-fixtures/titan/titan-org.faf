@@ -1,0 +1,74 @@
+faf: "3.0"
+
+# ============================================================
+# TITAN INDUSTRIES — Organization Level
+# Company-wide defaults inherited by all divisions and projects
+# ============================================================
+
+# --- DNA Chunk (scored) ---
+
+project:
+  name: "titan-industries"
+  description: "Fortune 200 technology conglomerate"
+  goal: "Build trusted infrastructure for commerce, health, and government"
+  main_language: "TypeScript"
+  type: "organization"
+
+stack:
+  backend: "Node.js"
+  db: "PostgreSQL"
+  hosting: "AWS"
+  cicd: "GitHub Actions"
+
+enterprise:
+  owner: "titan-industries/platform"
+  division: "titan-core"
+  classification: "internal"
+
+goals:
+  - "Unified engineering standards across 680 engineers"
+  - "AI-augmented development on every team"
+  - "SOC2 baseline compliance for all divisions"
+
+rules:
+  - "All repos must have a .faf file"
+  - "No secrets in source code — use secrets manager"
+  - "All PRs require at least one review"
+  - "Main branch is always deployable"
+
+# --- Context Chunks (unscored) ---
+
+compliance:
+  frameworks: [SOC2]
+  audit_cadence: "annual"
+  data_residency: "us-east-1"
+  last_audit: "2025-12-01"
+  policy: "All divisions inherit SOC2 baseline. Division-specific frameworks added at division level."
+
+security:
+  auth: "SSO via Okta (SAML 2.0)"
+  secrets: "AWS Secrets Manager"
+  encryption: "AES-256 at rest, TLS 1.3 in transit"
+  scan_tool: "Snyk"
+  vulnerability_sla:
+    critical: "24 hours"
+    high: "7 days"
+    medium: "30 days"
+    low: "90 days"
+
+ai_policy:
+  approved_providers: ["anthropic", "google", "openai"]
+  usage: "AI-assisted development encouraged for all teams"
+  restrictions:
+    - "No proprietary code in public AI prompts"
+    - "No PII in AI training data"
+    - "Air-gapped providers required for Gov division"
+  context_format: "FAF v3 (.faf)"
+
+# --- Pointer Chunk ---
+
+docs:
+  security_policy: "./docs/SECURITY-POLICY.md"
+  engineering_standards: "./docs/ENGINEERING-STANDARDS.md"
+  ai_usage_guide: "./docs/AI-USAGE-GUIDE.md"
+  onboarding: "./docs/ONBOARDING.md"

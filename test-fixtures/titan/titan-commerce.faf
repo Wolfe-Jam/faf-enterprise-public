@@ -1,0 +1,105 @@
+faf: "3.0"
+
+# ============================================================
+# TITAN COMMERCE — Division Level
+# Payments and commerce division. Inherits from titan-org.faf.
+# Adds PCI-DSS compliance and API contract standards.
+# ============================================================
+
+# --- DNA Chunk (scored) ---
+
+project:
+  name: "titan-commerce"
+  description: "Payments and commerce platform — processing $2B+ annually"
+  goal: "PCI-DSS Level 1 compliant payment infrastructure"
+  main_language: "TypeScript"
+  type: "division"
+
+stack:
+  backend: "Fastify"
+  db: "PostgreSQL"
+  hosting: "AWS EKS"
+  cicd: "GitHub Actions"
+  framework: "React + Next.js"
+  cache: "Redis (Upstash)"
+
+enterprise:
+  owner: "titan-commerce/platform"
+  division: "titan-commerce"
+  parent_faf: "./titan-org.faf"
+  classification: "confidential"
+
+goals:
+  - "Process $2B+ in annual transaction volume"
+  - "Maintain PCI-DSS Level 1 compliance"
+  - "Sub-200ms payment processing latency"
+  - "99.99% uptime for payment endpoints"
+
+rules:
+  - "Never log card numbers — PCI requirement"
+  - "All mutations through database transactions — no direct SQL"
+  - "Rate limit: 1000 req/s per merchant"
+  - "All payment endpoints require idempotency keys"
+  - "Stripe is the only approved payment processor"
+
+# --- Context Chunks (unscored) ---
+
+compliance:
+  frameworks: [SOC2, PCI-DSS]
+  pci_specifics:
+    level: 1
+    saq_type: "SAQ-D"
+    last_assessment: "2026-01-20"
+    qsa: "Coalfire"
+    scope: "All systems that store, process, or transmit cardholder data"
+  pii_fields: ["card_number", "cvv", "billing_address", "email"]
+  audit_cadence: "quarterly (ASV scans) + annual (QSA assessment)"
+  data_residency: "us-east-1"
+  last_audit: "2026-01-20"
+
+security:
+  auth: "OAuth 2.0 + JWT (short-lived tokens, 15min expiry)"
+  secrets: "AWS Secrets Manager + HashiCorp Vault (PCI scope)"
+  encryption: "AES-256 at rest, TLS 1.3 in transit, tokenization for card data"
+  scan_tool: "Snyk + Qualys (ASV)"
+  tokenization: "Stripe tokenization — raw card numbers never touch our servers"
+  vulnerability_sla:
+    critical: "4 hours"
+    high: "24 hours"
+    medium: "14 days"
+    low: "30 days"
+
+api_standards:
+  type: "REST"
+  versioning: "URL path (/v1/, /v2/)"
+  auth: "Bearer token + API key"
+  rate_limit: "1000/min per client"
+  pagination: "cursor-based"
+  error_format: "RFC 7807 (Problem Details)"
+  idempotency: "Required for all POST/PUT/PATCH — Idempotency-Key header"
+  specs:
+    - name: "Payments API"
+      path: "./docs/openapi-payments.yaml"
+    - name: "Merchants API"
+      path: "./docs/openapi-merchants.yaml"
+    - name: "Webhooks API"
+      path: "./docs/openapi-webhooks.yaml"
+
+ai_policy:
+  approved_providers: ["anthropic", "openai"]
+  usage: "Claude via Cursor + GitHub Copilot for code assistance"
+  restrictions:
+    - "No card data or PCI-scoped data in AI prompts"
+    - "AI-generated payment logic requires two reviews"
+    - "Copilot autocompletion allowed; chat-based generation requires review"
+  context_format: "FAF v3 (.faf) + CLAUDE.md bi-sync + .cursorrules"
+
+# --- Pointer Chunk ---
+
+docs:
+  pci_compliance: "./docs/PCI-COMPLIANCE.md"
+  api_payments: "./docs/openapi-payments.yaml"
+  api_merchants: "./docs/openapi-merchants.yaml"
+  api_webhooks: "./docs/openapi-webhooks.yaml"
+  incident_response: "./docs/INCIDENT-RESPONSE.md"
+  merchant_onboarding: "./docs/MERCHANT-ONBOARDING.md"

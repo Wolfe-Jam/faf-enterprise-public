@@ -1,0 +1,17 @@
+[
+  {
+    "version": "v1.0.0",
+    "name": "Enterprise Edition Launch",
+    "date": "2026-02-19",
+    "timestamp": "2026-02-19T00:00:00.000Z",
+    "prerelease": false,
+    "changelog": "- 33-slot monorepo scoring (21 base + 12 monorepo)\n- Enterprise license validation (JWT + RSA-SHA256)\n- Turborepo/Nx/Lerna/Rush/pnpm/Yarn workspace detection\n- 788 tests passing",
+    "urls": {
+      "github": "https://github.com/Wolfe-Jam/faf-enterprise/releases/tag/v1.0.0",
+      "npm": "https://www.npmjs.com/package/@faf/enterprise/v/1.0.0"
+    },
+    "install": {
+      "npm": "npm install @faf/enterprise@1.0.0"
+    }
+  }
+]

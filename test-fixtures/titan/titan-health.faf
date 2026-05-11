@@ -1,0 +1,103 @@
+faf: "3.0"
+
+# ============================================================
+# TITAN HEALTH — Division Level
+# Healthcare SaaS division. Inherits from titan-org.faf.
+# Adds HIPAA compliance and data classification requirements.
+# ============================================================
+
+# --- DNA Chunk (scored) ---
+
+project:
+  name: "titan-health"
+  description: "Healthcare SaaS platform — patient records, telehealth, analytics"
+  goal: "HIPAA-compliant healthcare infrastructure serving 2M patients"
+  main_language: "TypeScript"
+  type: "division"
+
+stack:
+  backend: "Fastify"
+  db: "PostgreSQL (RDS, encrypted)"
+  hosting: "AWS EKS (us-east-1)"
+  cicd: "GitHub Actions"
+  framework: "React"
+
+enterprise:
+  owner: "titan-health/platform"
+  division: "titan-health"
+  parent_faf: "./titan-org.faf"
+  classification: "confidential"
+
+goals:
+  - "Maintain HIPAA compliance across all 48 repos"
+  - "Sub-100ms API response time for patient lookups"
+  - "Zero PHI exposure incidents"
+
+rules:
+  - "All data at rest encrypted with customer-managed keys"
+  - "PHI access requires audit logging — no exceptions"
+  - "No PHI in log output, error messages, or stack traces"
+  - "All API endpoints require OAuth 2.0 + RBAC"
+
+# --- Context Chunks (unscored) ---
+
+compliance:
+  frameworks: [SOC2, HIPAA]
+  hipaa_specifics:
+    baa_required: true
+    phi_handling: "encrypt, audit, minimize"
+    breach_notification: "72 hours"
+    training: "Annual HIPAA training for all engineers"
+  audit_cadence: "semi-annual"
+  data_residency: "us-east-1 (no cross-region replication)"
+  last_audit: "2026-01-15"
+
+security:
+  auth: "OAuth 2.0 + RBAC (role-based access control)"
+  secrets: "AWS Secrets Manager (customer-managed KMS keys)"
+  encryption: "AES-256-GCM at rest, TLS 1.3 in transit, field-level encryption for PHI"
+  scan_tool: "Snyk + custom PHI scanner"
+  vulnerability_sla:
+    critical: "4 hours"
+    high: "24 hours"
+    medium: "14 days"
+    low: "30 days"
+
+data_classification:
+  levels:
+    - level: "PHI"
+      description: "Protected Health Information — highest sensitivity"
+      fields: ["patient_name", "dob", "ssn", "medical_record", "diagnosis"]
+      handling: "Encrypt at rest and in transit. Audit all access. Minimize retention."
+    - level: "PII"
+      description: "Personally Identifiable Information"
+      fields: ["email", "phone", "address"]
+      handling: "Encrypt at rest. Log access. 90-day retention for non-active."
+    - level: "internal"
+      description: "Internal business data"
+      handling: "Standard encryption. No special audit requirements."
+    - level: "public"
+      description: "Publicly available information"
+      handling: "No restrictions."
+  retention:
+    phi: "7 years (HIPAA requirement)"
+    pii: "90 days after account closure"
+    logs: "1 year"
+
+ai_policy:
+  approved_providers: ["google"]
+  usage: "Gemini CLI for code assistance. No PHI in prompts."
+  restrictions:
+    - "No PHI in any AI prompt — automated scanning enforced"
+    - "AI-generated code touching PHI requires manual review"
+    - "Gemini CLI only — no browser-based AI tools for health repos"
+  context_format: "FAF v3 (.faf) + GEMINI.md bi-sync"
+
+# --- Pointer Chunk ---
+
+docs:
+  hipaa_compliance: "./docs/HIPAA-COMPLIANCE.md"
+  phi_handling: "./docs/PHI-HANDLING-GUIDE.md"
+  data_classification: "./docs/DATA-CLASSIFICATION.md"
+  incident_response: "./docs/INCIDENT-RESPONSE.md"
+  security_policy: "./docs/SECURITY-POLICY.md"

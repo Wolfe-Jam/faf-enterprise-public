@@ -1,0 +1,226 @@
+faf: "3.0"
+
+# ============================================================
+# PAYMENTS-API — Project Level
+# Full-depth project .faf with 10+ chunks.
+# Inherits: titan-org → titan-commerce → payments-api
+# ============================================================
+
+# --- DNA Chunk (scored) ---
+
+project:
+  name: "payments-api"
+  description: "Core transaction processing service for Titan Commerce"
+  goal: "Process credit card transactions via Stripe with sub-200ms latency"
+  main_language: "TypeScript"
+  version: "3.2.1"
+  type: "service"
+
+stack:
+  backend: "Fastify"
+  db: "PostgreSQL 16"
+  hosting: "AWS EKS (us-east-1)"
+  cicd: "GitHub Actions"
+  cache: "Redis (Upstash)"
+  message_queue: "Kafka"
+  monitoring: "Datadog"
+  search: "Elasticsearch"
+
+enterprise:
+  owner: "titan-commerce/payments-team"
+  division: "titan-commerce"
+  parent_faf: "./titan-commerce.faf"
+  classification: "confidential"
+
+goals:
+  - "Process 50K transactions/day with 99.99% success rate"
+  - "Sub-200ms P99 latency for payment processing"
+  - "Zero PCI compliance violations"
+  - "Support multi-currency (USD, EUR, GBP, JPY)"
+
+rules:
+  - "Never log card numbers — PCI requirement"
+  - "All mutations through database transactions — no direct SQL"
+  - "Rate limit: 1000 req/s per merchant"
+  - "All payment endpoints require idempotency keys"
+  - "Stripe is the only approved payment processor"
+  - "All amounts in cents (integer) — no floating point currency"
+  - "UTC timestamps only — no timezone-dependent logic"
+
+key_files:
+  - path: "src/routes/payments.ts"
+    purpose: "Payment processing endpoints"
+  - path: "src/routes/webhooks.ts"
+    purpose: "Stripe webhook handlers"
+  - path: "src/services/stripe.ts"
+    purpose: "Stripe SDK integration"
+  - path: "src/models/transaction.ts"
+    purpose: "Transaction data model"
+  - path: "src/middleware/auth.ts"
+    purpose: "OAuth 2.0 + JWT middleware"
+
+# --- Context Chunks (unscored) ---
+
+architecture:
+  pattern: "microservices"
+  data_flow: "client → API gateway (Kong) → payments-api → PostgreSQL + Stripe"
+  decisions:
+    - what: "Fastify over Express"
+      why: "2x throughput, JSON schema validation built-in"
+    - what: "PostgreSQL over DynamoDB"
+      why: "ACID transactions required for payments — eventual consistency is unacceptable"
+    - what: "Kafka for events"
+      why: "Downstream consumers need reliable, ordered transaction events"
+    - what: "Redis for idempotency"
+      why: "Sub-ms lookup for duplicate payment detection"
+  components:
+    - name: "payments-api"
+      role: "Transaction processing and merchant management"
+      port: 3001
+      replicas: 4
+    - name: "webhook-handler"
+      role: "Stripe event processing (separate deployment for isolation)"
+      port: 3002
+      replicas: 2
+    - name: "transaction-worker"
+      role: "Async transaction reconciliation and reporting"
+      port: 3003
+      replicas: 2
+
+compliance:
+  frameworks: [SOC2, PCI-DSS]
+  pci_specifics:
+    level: 1
+    scope: "This service is in PCI scope — handles tokenized card references"
+    tokenization: "Stripe handles raw card data. We only store Stripe token IDs."
+    logging: "No card data in logs. Structured logging with PII redaction."
+  pii_fields: ["billing_address", "email", "merchant_tax_id"]
+  audit_required: true
+  last_audit: "2026-01-20"
+
+security:
+  auth: "OAuth 2.0 + JWT (15min access tokens, 7-day refresh)"
+  secrets: "AWS Secrets Manager (Stripe keys, DB credentials)"
+  encryption: "AES-256 at rest, TLS 1.3 in transit"
+  tokenization: "Stripe tokenization — we never see raw card numbers"
+  scan_tool: "Snyk (daily) + Qualys (quarterly ASV)"
+  headers:
+    - "Strict-Transport-Security: max-age=63072000"
+    - "Content-Security-Policy: default-src 'none'"
+    - "X-Content-Type-Options: nosniff"
+
+skills:
+  capabilities:
+    - "Process credit card transactions via Stripe"
+    - "Handle PCI-compliant webhook events"
+    - "Manage merchant accounts and API keys"
+    - "Generate transaction reports (daily, weekly, monthly)"
+    - "Multi-currency conversion (USD, EUR, GBP, JPY)"
+  rules:
+    - "Never log card numbers — PCI requirement"
+    - "All mutations through database transactions — no direct SQL"
+    - "Rate limit: 1000 req/s per merchant"
+    - "Idempotency keys required for all write operations"
+    - "All amounts in cents (integer math only)"
+
+api_contract:
+  type: "REST"
+  spec: "./docs/openapi-payments.yaml"
+  versioning: "URL path (/v1/, /v2/)"
+  auth: "Bearer token + API key (X-Api-Key header)"
+  rate_limit: "1000/min per client"
+  pagination: "cursor-based (next_cursor in response)"
+  endpoints:
+    - method: "POST"
+      path: "/v1/payments"
+      purpose: "Create a payment"
+      idempotent: true
+    - method: "GET"
+      path: "/v1/payments/:id"
+      purpose: "Get payment details"
+    - method: "POST"
+      path: "/v1/payments/:id/refund"
+      purpose: "Refund a payment"
+      idempotent: true
+    - method: "GET"
+      path: "/v1/merchants/:id/transactions"
+      purpose: "List merchant transactions"
+    - method: "POST"
+      path: "/v1/webhooks/stripe"
+      purpose: "Receive Stripe webhook events"
+
+team:
+  size: 8
+  lead: "jane.doe"
+  oncall_rotation: "PagerDuty (weekly rotation)"
+  standup: "09:00 EST daily"
+  retrospective: "Friday 14:00 EST (bi-weekly)"
+  slack: "#payments-team"
+
+runbook:
+  deploy: "GitHub Actions → staging (auto) → canary 10% → prod (manual approval)"
+  rollback: "Revert merge commit on main → auto-deploy to staging → manual promote"
+  incident:
+    severity_1: "PagerDuty → #payments-oncall → VP Eng (15 min escalation)"
+    severity_2: "PagerDuty → #payments-oncall → team lead (1 hour escalation)"
+    severity_3: "Slack → #payments-oncall → next standup"
+  health_check: "GET /health (returns 200 + dependency status)"
+  scaling: "HPA: min 4, max 16 replicas. Scale on CPU > 70% or P99 > 150ms."
+
+dependencies:
+  upstream:
+    - name: "user-service"
+      owns: "user identity, auth tokens"
+      protocol: "gRPC"
+      sla: "99.99% uptime"
+    - name: "merchant-service"
+      owns: "merchant profiles, rate limits, API keys"
+      protocol: "REST"
+      sla: "99.99% uptime"
+    - name: "stripe"
+      owns: "card tokenization, payment processing"
+      protocol: "REST (Stripe SDK)"
+      sla: "99.95% (external)"
+  downstream:
+    - name: "reporting-service"
+      consumes: "transaction events via Kafka topic: payments.transactions"
+    - name: "notification-service"
+      consumes: "payment confirmation events via Kafka topic: payments.confirmations"
+    - name: "analytics-pipeline"
+      consumes: "all payment events via Kafka (fan-out)"
+
+testing:
+  framework: "Vitest"
+  coverage_target: "90%"
+  environments:
+    - name: "unit"
+      scope: "Business logic, models, utilities"
+      database: "In-memory (no real DB)"
+    - name: "integration"
+      scope: "API routes, database queries, Stripe mocks"
+      database: "PostgreSQL (Docker)"
+    - name: "e2e"
+      scope: "Full payment flow with Stripe test mode"
+      database: "PostgreSQL (Docker) + Stripe test API"
+  commands:
+    unit: "npm test"
+    integration: "npm run test:integration"
+    e2e: "npm run test:e2e"
+
+sla:
+  uptime: "99.99%"
+  p50_latency: "50ms"
+  p99_latency: "200ms"
+  error_budget: "0.01% (4.3 min/month)"
+  rpo: "1 hour"
+  rto: "15 minutes"
+
+# --- Pointer Chunk ---
+
+docs:
+  architecture: "./docs/ARCHITECTURE.md"
+  api_spec: "./docs/openapi-payments.yaml"
+  runbook: "./docs/RUNBOOK.md"
+  pci_compliance: "./docs/PCI-COMPLIANCE.md"
+  onboarding: "./docs/ONBOARDING.md"
+  adr_log: "./docs/adr/"
